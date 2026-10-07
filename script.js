@@ -32,36 +32,85 @@ event.preventDefault();
 }
 
 function renderizarTarefas() {
-    tarefas.forEach(function(tarefa, indece) {
+    listaTarefas.replaceChildren();
 
-    const linha = document.createElement("tr");
+    tarefas.forEach(function(tarefa, indice) {
+        const linha = document.createElement("tr");
 
-    const colunaNumero = document.createElement("td");
-    colunaNumero.textContent = indece + 1;
+        const colunaNumero = document.createElement("td");
+        colunaNumero.textContent = indice + 1;
 
-    const colunaNome = document.createElement("td");
-    colunaNome.textContent = tarefa.texto;
-    "text-muted"
+        const colunaNome = document.createElement("td");
+        colunaNome.textContent = tarefa.texto;
+        if (tarefa.concluida) {
+            colunaNome.classList.add("text-decoration-line-through");
+        }
+
+        const colunaStatus = document.createElement("td");
+        if (tarefa.concluida) {
+            colunaStatus.innerHTML = '<span class="badge bg-success">Concluída</span>';
+        } else {
+            colunaStatus.innerHTML = '<span class="badge bg-warning">Pendente</span>';
+        }
+
+        const colunaAcoes = document.createElement("td");
+        const botaoConcluir = document.createElement("button");
+        botaoConcluir.textContent =
+            tarefa.concluida 
+            ? "Reabrir" 
+            : "Concluir";
+    botaoConcluir.classList.add(
+        "btn",
+        tarefa.concluida 
+        ? "btn-warning"
+        : "btn-success",
+        "btn-sm",
+        "me-2"
+    );
+
+    botaoConcluir.addEventListener(
+        "click",
+        function() {
+            AlternarStatusTarefa(tarefa.id);
+        }
+    );
+
+        const botaoEditar = document.createElement("button");
+        botaoEditar.classList.add("btn", "btn-primary", "me-2");
+
+        const b = document.createElement("button");
+
+        colunaAcoes.appendChild(botaoConcluir);
+
+
+        linha.appendChild(colunaNumero);
+        linha.appendChild(colunaNome);
+        linha.appendChild(colunaStatus);
+        linha.appendChild(colunaAcoes);
+
+        listaTarefas.appendChild(linha);
     });
+
+    contador.textContent = tarefas.length === 1
+        ? "1 tarefa"
+        : `${tarefas.length} tarefas`;
 }
-
-    const colunaStatus = document.createElement("td");
-    if (tarefa.concluida) {
-        colunaStatus.innerHTML = '<span class="badge bg-success">Concluída</span>';
-    } else {
-        colunaStatus.innerHTML = '<span class="badge bg-warning">Pendente</span>';
-    }
-
-    linha.appendChild(colunaNumero);
-    linha.appendChild(colunaNome);
-    linha.appendChild(colunaStatus);
- 
-    listaTarefas.appendChild(linha);
 
 
 function salvarTarefa() {
     localStorage.setItem(
         "tarefas", 
         JSON.stringify(tarefas));
+    renderizarTarefas();
  }
 
+function AlternarStatusTarefa(id) {
+    tarefas.forEach(function(tarefa) {
+        if (tarefa.id === id) {
+            tarefa.concluida = !tarefa.concluida;
+        }
+    });
+    salvarTarefa();
+}
+
+renderizarTarefas();
